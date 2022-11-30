@@ -3,3 +3,5 @@ data
 musicnet
 *.zip
 __pycache__
+train
+test

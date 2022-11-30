@@ -1,6 +1,8 @@
 import tensorflow as tf
 from types import SimpleNamespace
 
+WINDOW_SIZE = 64
+
 class MemoryRNN(tf.keras.Model):
 
     ##########################################################################################
@@ -33,6 +35,7 @@ class MemoryRNN(tf.keras.Model):
         - You must use an LSTM or GRU as the next layer.
         """
         ## TODO: Implement the method as necessary
+        inputs = tf.reshape(inputs, (-1, WINDOW_SIZE))
         return self.model(inputs)
     
     

@@ -7,6 +7,7 @@ import numpy as np
 HOP_LENGTH = 512
 WAV_SAMPLING_RATE_IN_HZ = 44100
 META_PATH = '../data/musicnet/musicnet_metadata.csv'
+WINDOW_SIZE = 64
 
 def read_length():
     length_dict = dict()
@@ -40,11 +41,12 @@ def process_labels(path):
     return trees
 
 
-def get_data(h5_path, label_path):
+def get_data(h5_path, label_path, is_training=False):
     trees = process_labels(label_path)
-    one_hot_note = np.empty((128, 1))
-    data_dict = np.empty((88, 1))
+    one_hot_note = np.empty((128, 0))
+    data_dict = np.empty((88, 0))
     length_dict = read_length()
+    i = 0
     for item in os.listdir(h5_path):
         if not item.endswith('.h5'): continue
         uid = int(item[:-3])
@@ -52,7 +54,13 @@ def get_data(h5_path, label_path):
         seconds = length_dict[uid]
         f = h5py.File(os.path.join('',h5_path,item), 'r')
         frames = f['cqt'].shape[1]
-        data_dict = np.concatenate([data_dict, np.array(f['cqt'])], axis=-1)
+        data = np.array(f['cqt'])
+        if frames % WINDOW_SIZE > 0:
+            # zero pad audio
+            rmn = (frames // WINDOW_SIZE + 1) * WINDOW_SIZE - frames
+            data = np.concatenate([data, np.zeros((88, rmn))], axis=-1)
+            frames += rmn
+        data_dict = np.concatenate([data_dict, data], axis=-1)
         notes = np.zeros((128, frames))
         for t in range(frames):
             l = int(t / frames * seconds * WAV_SAMPLING_RATE_IN_HZ)
@@ -61,13 +69,21 @@ def get_data(h5_path, label_path):
                 note = interval[2][1]
                 notes[note, t] = 1
         one_hot_note = np.concatenate([one_hot_note, notes], axis=-1)
-    return data_dict, one_hot_note
+        i += 1
+        if i % 10 == 0:
+            num = i // 10
+            if is_training:
+                np.save('./train/x_' + str(num) + '.npy', data_dict)
+                np.save('./train/y_' + str(num) + '.npy', one_hot_note)
+            else:
+                np.save('./test/x_' + str(num) + '.npy', data_dict)
+                np.save('./test/y_' + str(num) + '.npy', one_hot_note)
+            one_hot_note = np.empty((128, 0))
+            data_dict = np.empty((88, 0))
     
 
-
 def main():
-    data, notes = get_data('../data/data_16K/test_data', '../musicnet/test_labels')
-    print(data.shape, notes.shape)
+    get_data('../data/data_16K/train_data', '../musicnet/train_labels', True)
 
 
 if __name__ == '__main__':
