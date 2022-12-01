@@ -35,7 +35,7 @@ class MemoryRNN(tf.keras.Model):
         - You must use an LSTM or GRU as the next layer.
         """
         ## TODO: Implement the method as necessary
-        inputs = tf.reshape(inputs, (-1, WINDOW_SIZE))
+        # inputs = tf.reshape(inputs, (-1, WINDOW_SIZE))
         return self.model(inputs)
     
     
@@ -51,7 +51,9 @@ def get_text_model():
 
     ## TODO: Define your own loss and metric for your optimizer
     loss_metric = "binary_crossentropy"
-    acc_metric  = "categorical_accuracy"
+    acc_metric  = tf.keras.metrics.BinaryAccuracy(
+        name="binary_accuracy", threshold=0.5
+    )
 
     ## TODO: Compile your model using your choice of optimizer, loss, and metrics
     model.compile(
@@ -62,6 +64,6 @@ def get_text_model():
 
     return SimpleNamespace(
         model = model,
-        epochs = 1,
-        batch_size = 300,
+        epochs = 5,
+        batch_size = 100,
     )

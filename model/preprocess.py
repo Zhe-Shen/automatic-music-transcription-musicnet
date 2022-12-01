@@ -80,6 +80,28 @@ def get_data(h5_path, label_path, is_training=False):
                 np.save('./test/y_' + str(num) + '.npy', one_hot_note)
             one_hot_note = np.empty((128, 0))
             data_dict = np.empty((88, 0))
+            
+            
+def load_data(num_list, is_training=False):
+    one_hot_note = np.empty((128, 0))
+    data_dict = np.empty((88, 0))
+    if is_training:
+        for i in num_list:
+            path = './train/x_' + str(i) + '.npy'
+            data = np.load(path)
+            data_dict = np.concatenate([data_dict, data], axis=-1)
+            path = './train/y_' + str(i) + '.npy'
+            data = np.load(path)
+            one_hot_note = np.concatenate([one_hot_note, data], axis=-1)
+    else:
+        for i in num_list:
+            path = './test/x_' + str(i) + '.npy'
+            data = np.load(path)
+            data_dict = np.concatenate([data_dict, data], axis=-1)
+            path = './test/y_' + str(i) + '.npy'
+            data = np.load(path)
+            one_hot_note = np.concatenate([one_hot_note, data], axis=-1)
+    return data_dict, one_hot_note
     
 
 def main():
