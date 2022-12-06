@@ -105,7 +105,8 @@ def load_data(num_list, is_training=False):
     
 
 def main():
-    get_data('../data/data_16K/train_data', '../musicnet/train_labels', True)
+    get_data('../data/data_16K/test_data', '../data/data_16K/test_labels')
+    get_data('../data/data_16K/train_data', '../data/data_16K/train_labels', True)
 
 
 if __name__ == '__main__':

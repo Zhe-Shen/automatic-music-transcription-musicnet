@@ -7,7 +7,7 @@ class MemoryRNN(tf.keras.Model):
 
     ##########################################################################################
 
-    def __init__(self, note_size=128, rnn_size=128):
+    def __init__(self, note_size=128, rnn_size=256):
         """
         The Model class predicts the next words in a sequence.
         : param vocab_size : The number of unique words in the data
@@ -50,20 +50,21 @@ def get_text_model():
     model = MemoryRNN()
 
     ## TODO: Define your own loss and metric for your optimizer
-    loss_metric = "binary_crossentropy"
-    acc_metric  = tf.keras.metrics.BinaryAccuracy(
-        name="binary_accuracy", threshold=0.5
-    )
+    loss_metric = "mse"
 
     ## TODO: Compile your model using your choice of optimizer, loss, and metrics
     model.compile(
         optimizer=tf.keras.optimizers.Adam(), 
         loss=loss_metric, 
-        metrics=[acc_metric],
+        metrics=[
+            tf.keras.metrics.BinaryAccuracy(name="binary_accuracy", threshold=0.5), 
+            tf.keras.metrics.Precision(),
+            tf.keras.metrics.Recall()
+        ],
     )
 
     return SimpleNamespace(
         model = model,
-        epochs = 5,
+        epochs = 10,
         batch_size = 100,
     )
