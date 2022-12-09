@@ -1,15 +1,15 @@
 import tensorflow as tf
 
+number_units = 256
 number_layers = 3
 number_classes = 128
-number_units = 256
 
-def getLSTM():
+def getBiLSTM():
     model = tf.keras.Sequential()
-    model.add(tf.keras.layers.LSTM(number_units, return_sequences = "True",kernel_initializer='normal', activation='tanh'))
+    model.add(tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(number_units, return_sequences = "True",kernel_initializer='normal', activation='tanh')))
     model.add(tf.keras.layers.Dropout(0.2))
     for i in range(number_layers - 1):
-        model.add(tf.keras.layers.LSTM(number_units,return_sequences = "True",kernel_initializer='normal', activation='tanh'))
+        model.add(tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(number_units,return_sequences = "True",kernel_initializer='normal', activation='tanh')))
         model.add(tf.keras.layers.Dropout(0.2))
 
     model.add(tf.keras.layers.Dense(number_classes, kernel_initializer='normal', activation='sigmoid'))
@@ -19,3 +19,5 @@ def getLSTM():
                 tf.keras.metrics.Recall()
             ])
     return model
+    
+    

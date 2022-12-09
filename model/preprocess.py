@@ -8,6 +8,8 @@ HOP_LENGTH = 512
 WAV_SAMPLING_RATE_IN_HZ = 44100
 META_PATH = '../data/musicnet/musicnet_metadata.csv'
 WINDOW_SIZE = 64
+NUM_FEATURES = 88
+NOTE_SIZE = 128
 
 def read_length():
     length_dict = dict()
@@ -41,10 +43,10 @@ def process_labels(path):
     return trees
 
 
-def get_data(h5_path, label_path, is_training=False):
+def store_data(h5_path, label_path, is_training=False):
     trees = process_labels(label_path)
-    one_hot_note = np.empty((128, 0))
-    data_dict = np.empty((88, 0))
+    one_hot_note = np.empty((NOTE_SIZE, 0))
+    data_dict = np.empty((NUM_FEATURES, 0))
     length_dict = read_length()
     i = 0
     for item in os.listdir(h5_path):
@@ -58,10 +60,10 @@ def get_data(h5_path, label_path, is_training=False):
         if frames % WINDOW_SIZE > 0:
             # zero pad audio
             rmn = (frames // WINDOW_SIZE + 1) * WINDOW_SIZE - frames
-            data = np.concatenate([data, np.zeros((88, rmn))], axis=-1)
+            data = np.concatenate([data, np.zeros((NUM_FEATURES, rmn))], axis=-1)
             frames += rmn
         data_dict = np.concatenate([data_dict, data], axis=-1)
-        notes = np.zeros((128, frames))
+        notes = np.zeros((NOTE_SIZE, frames))
         for t in range(frames):
             l = int(t / frames * seconds * WAV_SAMPLING_RATE_IN_HZ)
             r = int((t + 1) / frames * seconds * WAV_SAMPLING_RATE_IN_HZ)
@@ -78,13 +80,13 @@ def get_data(h5_path, label_path, is_training=False):
             else:
                 np.save('./test/x_' + str(num) + '.npy', data_dict)
                 np.save('./test/y_' + str(num) + '.npy', one_hot_note)
-            one_hot_note = np.empty((128, 0))
-            data_dict = np.empty((88, 0))
+            one_hot_note = np.empty((NOTE_SIZE, 0))
+            data_dict = np.empty((NUM_FEATURES, 0))
             
             
 def load_data(num_list, is_training=False):
-    one_hot_note = np.empty((128, 0))
-    data_dict = np.empty((88, 0))
+    one_hot_note = np.empty((NOTE_SIZE, 0))
+    data_dict = np.empty((NUM_FEATURES, 0))
     if is_training:
         for i in num_list:
             path = './train/x_' + str(i) + '.npy'
@@ -105,8 +107,8 @@ def load_data(num_list, is_training=False):
     
 
 def main():
-    get_data('../data/data_16K/test_data', '../data/data_16K/test_labels')
-    get_data('../data/data_16K/train_data', '../data/data_16K/train_labels', True)
+    store_data('../data/data_16K/test_data', '../data/data_16K/test_labels')
+    store_data('../data/data_16K/train_data', '../data/data_16K/train_labels', True)
 
 
 if __name__ == '__main__':
