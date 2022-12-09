@@ -1,0 +1,10 @@
+data
+*.gz
+musicnet
+*.zip
+__pycache__
+train
+test
+output_11K_256
+train_11k
+test_11k
